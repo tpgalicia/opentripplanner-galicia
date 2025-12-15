@@ -1,0 +1,46 @@
+{
+  "transitFeeds": [
+    {
+      "feedId": "xunta",
+      "type": "gtfs",
+      "source": "./feeds/xunta.zip"
+    },
+    {
+      "feedId": "renfe",
+      "type": "gtfs",
+      "source": "./feeds/renfe.zip"
+    },
+    {
+      "feedId": "feve",
+      "type": "gtfs",
+      "source": "./feeds/feve.zip"
+    },
+        {
+      "feedId": "cercanias",
+      "type": "gtfs",
+      "source": "./feeds/cercanias.zip"
+    },
+    {
+      "feedId": "ourense",
+      "type": "gtfs",
+      "source": "./feeds/ourense.zip"
+    },
+    {
+      "feedId": "coruna",
+      "type": "gtfs",
+      "source": "./feeds/coruna.zip"
+    },
+    {
+      "feedId": "vitrasa",
+      "type": "gtfs",
+      "source": "./feeds/vitrasa.zip"
+    }
+  ],
+  "osm": [
+    {
+      "source": "./galicia-latest.osm.pbf"
+    }
+  ],
+  "transitServiceStart": "-P3D",
+  "transitServiceEnd": "P1M"
+}

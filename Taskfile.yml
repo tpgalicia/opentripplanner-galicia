@@ -1,0 +1,88 @@
+version: '3'
+
+vars:
+  OTP_JAR: otp-shaded-2.8.1.jar
+
+tasks:
+  download-otp:
+    desc: "Download the OpenTripPlanner JAR file"
+    cmds:
+      - curl -L -o {{.OTP_JAR}} https://github.com/opentripplanner/OpenTripPlanner/releases/download/v2.8.1/otp-shaded-2.8.1.jar
+
+  download-pbf:
+    desc: "Download a sample PBF file for building the graph"
+    cmds:
+      - curl -sLo galicia-latest.osm.pbf https://download.geofabrik.de/europe/spain/galicia-latest.osm.pbf
+
+  download-xunta:
+    desc: "Download Xunta de Galicia GTFS data (NAP MITRAMS)"
+    silent: true
+    cmds:
+      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/xunta.zip https://nap.transportes.gob.es/api/Fichero/download/1584"
+
+  download-renfe:
+    desc: "Download Renfe GTFS data (NAP MITRAMS)"
+    silent: true
+    cmds:
+      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/renfe.zip https://nap.transportes.gob.es/api/Fichero/download/1098"
+
+  download-feve:
+    desc: "Download Renfe FEVE GTFS data (NAP MITRAMS)"
+    silent: true
+    cmds:
+      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/feve.zip https://nap.transportes.gob.es/api/Fichero/download/1131"
+
+  download-cercanias:
+    desc: "Download Renfe Cercanías GTFS data (NAP MITRAMS)"
+    silent: true
+    cmds:
+      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/cercanias.zip https://nap.transportes.gob.es/api/Fichero/download/1130"
+
+  download-ourense:
+    desc: "Download Ourense city GTFS data (NAP MITRAMS)"
+    silent: true
+    cmds:
+      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/ourense.zip https://nap.transportes.gob.es/api/Fichero/download/1586"
+
+  download-coruna:
+    desc: "Download A Coruña city GTFS data (NAP MITRAMS)"
+    silent: true
+    cmds:
+      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/coruna.zip https://nap.transportes.gob.es/api/Fichero/download/1574"
+
+  download-vitrasa:
+    desc: "Download Vitrasa GTFS data (Vigo Open Data)"
+    silent: true
+    cmds:
+      - "curl -sLo feeds/vitrasa.zip https://datos.vigo.org/data/transporte/gtfs_vigo.zip"
+
+  download-feeds:
+    desc: "Download all required data files"
+    deps:
+      - download-xunta
+      - download-renfe
+      - download-feve
+      - download-cercanias
+      - download-ourense
+      - download-coruna
+      - download-vitrasa
+
+  build:
+    desc: "Build OpenTripPlanner and save the graph for future runs"
+    cmds:
+      - java -Xmx4G -jar {{.OTP_JAR}} --build . --save
+
+  run:
+    desc: "Run the OpenTripPlanner server using the saved graph from the build task"
+    cmds:
+      - java -Xmx4G -jar {{.OTP_JAR}} --load . --serve
+
+  proxy-renfe-rt:
+    desc: "Run the Renfe releases proxy server"
+    cmds:
+      - uv --directory proxy_rt_renfe run ./main.py
+
+  aio:
+    desc: "Build and run OpenTripPlanner without saving the graph"
+    cmds:
+      - java -Xmx4G -jar {{.OTP_JAR}} --build . --serve

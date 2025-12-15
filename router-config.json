@@ -1,0 +1,9 @@
+{
+    "updaters": [
+        {
+            "type": "stop-time-updater",
+            "url": "http://localhost:5000/proto",
+            "feedId": "renfe"
+        }
+    ]
+}
