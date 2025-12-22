@@ -21,9 +21,9 @@
       "source": "./feeds/cercanias.zip"
     },
     {
-      "feedId": "ourense",
+      "feedId": "santiago",
       "type": "gtfs",
-      "source": "./feeds/ourense.zip"
+      "source": "./feeds/ibi_santiago.zip"
     },
     {
       "feedId": "coruna",

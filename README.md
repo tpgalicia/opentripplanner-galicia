@@ -12,6 +12,7 @@ Este repositorio incluye:
   - GTFS: Urbano de A Coruña
   - GTFS: Urbano de Ourense
   - GTFS: Urbano de Vigo
+- Submódulo Git para descargar y parchear los feeds de Renfe automáticamente
 - Proxy del GTFS RealTime de Renfe para integración con OTP
 - Configuración de OpenTripPlanner para cargar los datos descargados y el tiempo real de Renfe
 - Tareas para ejecutar OTP directamente
@@ -30,6 +31,7 @@ Para descargar los datos y ejecutar OTP, se pueden utilizar las siguientes tarea
 ```bash
 git clone https://github.com/tpgalicia/opentripplanner-galicia.git
 cd opentripplanner-galicia
+git submodule update --init --recursive
 ```
 
 Descargar OpenTripPlanner, datos de OpenStreetMap y feeds:
@@ -62,6 +64,19 @@ El operador ferroviario Renfe proporciona datos de tiempo real en formato GTFS-R
 Para solucionar esto, se incluye un proxy simple implementado en Python utilizando Flask que convierte las peticiones de GTFS-RT de Renfe al formato esperado por OTP. El proxy escucha en el puerto 5000 y expone un único endpoint `/proxy` que realiza una petición al endpoint real de Renfe, transforma la respuesta y la devuelve.
 
 El proxy aún es muy básico, no maneja todos los trip updates y no gestiona otro tipo de entidades de actualización de estado (por ejemplo, `VehiclePosition` o `Alert`). Sin embargo, es suficiente para que OTP pueda utilizar los datos de tiempo real de Renfe en las rutas planificadas.
+
+## Submódulos Git
+
+Este repositorio utiliza submódulos de Git para incluir el script de descarga y parcheo de los feeds de Renfe. Al clonar el repositorio, es importante inicializar y actualizar los submódulos para asegurarse de que se descarguen correctamente.
+
+### Desarrollo: actualizar submódulos
+
+Para actualizar los submódulos a la última versión disponible en sus respectivos repositorios, se puede utilizar el siguiente comando:
+
+```bash
+git submodule foreach git pull origin main
+git commit -am "Update submodules"
+```
 
 ## Licencia
 

@@ -1,0 +1,8 @@
+{
+    "otpFeatures": {
+        "SandboxAPIGeocoder": true,
+        "APIUpdaterStatus": false,
+        "APIServerInfo": false,
+        "ParallelRouting": true
+    }
+}

@@ -1,3 +1,5 @@
+$schema: https://taskfile.dev/schema.json
+
 version: '3'
 
 vars:
@@ -22,27 +24,10 @@ tasks:
 
   download-renfe:
     desc: "Download Renfe GTFS data (NAP MITRAMS)"
-    silent: true
     cmds:
-      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/renfe.zip https://nap.transportes.gob.es/api/Fichero/download/1098"
-
-  download-feve:
-    desc: "Download Renfe FEVE GTFS data (NAP MITRAMS)"
-    silent: true
-    cmds:
-      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/feve.zip https://nap.transportes.gob.es/api/Fichero/download/1131"
-
-  download-cercanias:
-    desc: "Download Renfe Cercanías GTFS data (NAP MITRAMS)"
-    silent: true
-    cmds:
-      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/cercanias.zip https://nap.transportes.gob.es/api/Fichero/download/1130"
-
-  download-ourense:
-    desc: "Download Ourense city GTFS data (NAP MITRAMS)"
-    silent: true
-    cmds:
-      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/ourense.zip https://nap.transportes.gob.es/api/Fichero/download/1586"
+      - uv --directory build_renfe run ./build_static_feed.py {{.NAP_API_KEY}}
+      - cp build_renfe/gtfs_renfe_galicia_general*.zip feeds/renfe.zip
+      - cp build_renfe/gtfs_renfe_galicia_feve*.zip feeds/feve.zip
 
   download-coruna:
     desc: "Download A Coruña city GTFS data (NAP MITRAMS)"
@@ -61,16 +46,26 @@ tasks:
     deps:
       - download-xunta
       - download-renfe
-      - download-feve
-      - download-cercanias
-      - download-ourense
       - download-coruna
       - download-vitrasa
+
+  build-osm:
+    desc: "Build OSM data for OpenTripPlanner"
+    sources:
+      - galicia-latest.osm.pbf
+    cmds:
+      - java -Xmx4G -jar {{.OTP_JAR}} --buildStreet .
+
+  build-transit:
+    desc: "Build transit data for OpenTripPlanner"
+    cmds:
+      - java -Xmx4G -jar {{.OTP_JAR}} --loadStreet --save .
 
   build:
     desc: "Build OpenTripPlanner and save the graph for future runs"
     cmds:
-      - java -Xmx4G -jar {{.OTP_JAR}} --build . --save
+      - task: build-osm
+      - task: build-transit
 
   run:
     desc: "Run the OpenTripPlanner server using the saved graph from the build task"

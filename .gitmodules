@@ -1,0 +1,3 @@
+[submodule "build_renfe"]
+	path = build_renfe
+	url = https://github.com/tpgalicia/gtfs-renfe-galicia.git
