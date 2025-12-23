@@ -1,3 +1,7 @@
 [submodule "build_renfe"]
 	path = build_renfe
 	url = https://github.com/tpgalicia/gtfs-renfe-galicia.git
+
+[submodule "build_coruna"]
+	path = build_coruna
+	url = https://github.com/tpgalicia/gtfs-coruna.git

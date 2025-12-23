@@ -18,7 +18,6 @@ tasks:
 
   download-xunta:
     desc: "Download Xunta de Galicia GTFS data (NAP MITRAMS)"
-    silent: true
     cmds:
       - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/xunta.zip https://nap.transportes.gob.es/api/Fichero/download/1584"
 
@@ -31,13 +30,12 @@ tasks:
 
   download-coruna:
     desc: "Download A Coruña city GTFS data (NAP MITRAMS)"
-    silent: true
     cmds:
-      - "curl -H \"ApiKey: {{.NAP_API_KEY}}\" -sLo feeds/coruna.zip https://nap.transportes.gob.es/api/Fichero/download/1574"
+      - uv --directory build_coruna run ./build_static_feed.py {{.NAP_API_KEY}}
+      - cp build_coruna/gtfs_coruna.zip feeds/coruna.zip
 
   download-vitrasa:
     desc: "Download Vitrasa GTFS data (Vigo Open Data)"
-    silent: true
     cmds:
       - "curl -sLo feeds/vitrasa.zip https://datos.vigo.org/data/transporte/gtfs_vigo.zip"
 
