@@ -25,8 +25,9 @@ Este repositorio incluye:
 Para ejecutar los contenidos de este repositorio, es necesario tener descargado:
 
 - **Java 25 LTS**: en sistemas Windows o macOS, se recomienda descargar de [Adoptium](https://adoptium.net/). En sistemas Linux, se puede instalar OpenJDK 25 desde los repositorios oficiales.
-- **Task**: Se recomienda tener [Task](https://taskfile.dev/) instalado para gestionar las tareas definidas en el `Taskfile.yml`. Alternativamente, se pueden ejecutar directamente, pero es más sencillo con Task.
-- **Python y `uv`**: Para el proxy de tiempo real de Renfe, es necesario tener Python, con los paquetes `Flask`, `requests` y `protobuf` instalados. Utilizando [`uv`](https://docs.astral.sh/uv) se puede con solo una línea. El Taskfile asume que se está utilizando `uv` directamente.
+- **Just**: Se recomienda tener [Just](https://just.systems/) instalado para gestionar las tareas definidas en el [`justfile`](./justfile). Alternativamente, se pueden ejecutar directamente, pero es más sencillo con Just.
+- **Rancher, Docker o Podman**: Para generar los `shapes` de Renfe, se necesita tener dos instancias de OSRM: una para las líneas de ancho ibérico/internacional, y otra para ancho métrico (antiguo FEVE). Se facilita en `build_renfe` un fichero compose.yaml con un Dockerfile para generar el contenedor personalizado y ejecutar los servidores en los puertos 5000 y 5001, con `cd build_renfe` y `nerdctl compose up -d`.
+- **Python y `uv`**: Para los parches sobre algunos feeds, es necesario tener Python, `requests` y otros paquetes instalados. Utilizando [`uv`](https://docs.astral.sh/uv) se puede ejecutar todo con solo una línea. El justfile asume que se está utilizando `uv` directamente.
 - **Clave de API del NAP del Ministerio de Transportes**: Para poder descargar los feeds disponibles en el Punto de Acceso Nacional (NAP), es necesario registrarse y obtener una clave de API en [https://nap.transportes.gob.es/](https://nap.transportes.gob.es/).
 
 Para descargar los datos y ejecutar OTP, se pueden utilizar las siguientes tareas:
@@ -34,38 +35,14 @@ Para descargar los datos y ejecutar OTP, se pueden utilizar las siguientes tarea
 ```bash
 git clone https://github.com/tpgalicia/opentripplanner-galicia.git
 cd opentripplanner-galicia
-task setup
-task download-feeds NAP_API_KEY=tu_clave_de_api_aqui
+just setup **clave_api_nap**
+just build
 ```
 
-Iniciar OpenTripPlanner:
+Iniciar OpenTripPlanner (asumiento que se ejecutaron los pasos anteriores y ya se cuenta con el `graph.obj`):
 
 ```bash
-task aio
-```
-
->[!NOTE]
->La tarea `aio` inicia OpenTripPlanner generando el grafo en memoria y utilizándolo directamente. Esto implica que cada vez que se inicie OTP, se generará el grafo desde cero, lo cual puede llevar tiempo dependiendo del tamaño de los datos y del hardware disponible. Alternativamente, se puede utilizar la tarea `build` para generar el grafo (`graph.obj`) una sola vez y luego utilizar la tarea `run` para iniciar OTP utilizando el grafo ya generado, lo que acelera significativamente el tiempo de inicio en ejecuciones posteriores.
-
-## Proxy de tiempo real de Renfe
-
-El operador ferroviario Renfe proporciona datos de tiempo real en formato GTFS-RT para los servicios de Cercanías (aparentemente, no incluyendo los de Ancho Métrico) y Media/Larga Distancia (no incluyendo regionales). El problema es que estos datos son expuestos únicamente en JSON mientras que OTP requiere el formato GTFS-RT en protobuf. Además, expresan el retraso en segundos con el campo `delay` para todo el trip en lugar de mediante un `StopTimeUpdate` con una parada de referencia.
-
-Para solucionar esto, se incluye un proxy simple implementado en Python utilizando Flask que convierte las peticiones de GTFS-RT de Renfe al formato esperado por OTP. El proxy escucha en el puerto 5000 y expone un único endpoint `/proxy` que realiza una petición al endpoint real de Renfe, transforma la respuesta y la devuelve.
-
-El proxy aún es muy básico, no maneja todos los trip updates y no gestiona otro tipo de entidades de actualización de estado (por ejemplo, `VehiclePosition` o `Alert`). Sin embargo, es suficiente para que OTP pueda utilizar los datos de tiempo real de Renfe en las rutas planificadas.
-
-## Submódulos Git
-
-Este repositorio utiliza submódulos de Git para incluir el script de descarga y parcheo de los feeds de Renfe. Al clonar el repositorio, es importante inicializar y actualizar los submódulos para asegurarse de que se descarguen correctamente.
-
-### Desarrollo: actualizar submódulos
-
-Para actualizar los submódulos a la última versión disponible en sus respectivos repositorios, se puede utilizar el siguiente comando:
-
-```bash
-git submodule foreach git pull origin main
-git commit -am "Update submodules"
+just serve
 ```
 
 ## Licencia
